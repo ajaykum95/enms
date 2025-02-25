@@ -1,0 +1,158 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.2'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id "com.google.cloud.artifactregistry.gradle-plugin" version "2.2.0"
+	id 'checkstyle'
+	id 'jacoco'
+	id 'pmd'
+}
+
+group = 'com.abha'
+version = '0.0.1'
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+check.dependsOn jacocoTestCoverageVerification, jacocoTestReport, pmdMain, pmdTest
+
+checkstyle {
+	toolVersion '10.3.3'
+	configFile file("config/checkstyle/checkstyle.xml")
+}
+checkstyleMain {
+	source = 'src/main/java'
+}
+checkstyleTest {
+	source = 'src/test/java'
+}
+
+jacoco {
+	toolVersion = "0.8.9"
+}
+
+//Disable the creation of plain jar otherwise lib folder will have plain + boot jar
+// Which will create extra copy in docker as we are using copy command with ioms*.jar
+jar {
+	enabled = false
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenLocal()  // Include this to pull from the local repository
+	mavenCentral()
+}
+
+dependencies {
+	implementation('org.springframework.boot:spring-boot-starter-web') {
+		exclude group: 'commons-logging', module: 'commons-logging'
+	}
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.apache.commons:commons-lang3:3.13.0'
+	implementation 'com.abha:sharedlibrary:0.0.1'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'io.projectreactor.netty:reactor-netty-http'
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'org.postgresql:postgresql'
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation 'org.testcontainers:postgresql'
+	testImplementation 'org.testcontainers:mockserver:1.19.1'
+	testImplementation 'org.mock-server:mockserver-client-java:5.15.0'
+}
+test {
+	useJUnitPlatform()
+	testLogging {
+		events "PASSED", "SKIPPED", "FAILED", "STANDARD_OUT", "STANDARD_ERROR"
+	}
+	finalizedBy jacocoTestReport // report is always generated after tests run
+}
+
+jacocoTestReport {
+	dependsOn test // tests are required to run before generating the report
+	reports {
+		xml.required = true
+		csv.required = false
+	}
+
+	// Define code coverage exclusions
+	afterEvaluate {
+		classDirectories = files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: [
+					// Exclude specific classes
+					'/com/abha/enms/EnmsApplication.class',
+					'/com/abha/enms/filters/**',
+
+					// Exclude a package and its sub-packages
+					'/com/abha/enms/**/models/**'
+			])
+		})
+	}
+}
+
+tasks.withType(Checkstyle) {
+	reports {
+		xml.required = false
+		html.required = true
+		html.stylesheet resources.text.fromFile('config/xsl/checkstyle-simple.xsl')
+	}
+}
+
+jacocoTestCoverageVerification {
+	violationRules {
+		rule {
+			limit {
+				counter = 'INSTRUCTION'
+				minimum = 0.95
+			}
+			limit {
+				counter = 'LINE'
+				minimum = 0.95
+			}
+			limit {
+				counter = 'BRANCH'
+				minimum = 0.95
+			}
+			limit {
+				counter = 'METHOD'
+				minimum = 0.95
+			}
+			limit {
+				counter = 'CLASS'
+				minimum = 0.95
+			}
+			limit {
+				counter = 'COMPLEXITY'
+				minimum = 0.95
+			}
+		}
+	}
+	afterEvaluate {
+		classDirectories = files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: [
+					// Exclude specific classes
+					'/com/abha/enms/EnmsApplication.class',
+					'/com/abha/enms/filters/**',
+
+					// Exclude a package and its sub-packages
+					'/com/abha/enms/**/models/**'
+			])
+		})
+	}
+}
+
+pmd {
+	toolVersion = "7.0.0"
+}

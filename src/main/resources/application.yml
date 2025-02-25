@@ -1,0 +1,48 @@
+server:
+  port: 9710
+
+spring:
+  profiles:
+    active: local
+  application:
+    name: enms
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics
+  endpoint:
+    metrics:
+      enabled: true
+  metrics:
+    tags:
+      application: enms
+
+thread:
+  executor:
+    config:
+      coreSize: 6
+      maxSize: 6
+      queueCapacity: 50
+      threadPrefix: "aums-async-executor-"
+
+webclient:
+  loopResources: # For managing asynchronous and event-driven programming
+    name: webClientLoop # This is the name given to the event loop resources. It's a descriptive name to identify and label the resources
+    threadCount: 1 # Represents the number of event loops to be created, Handling tasks like I/O operations and callbacks
+    useNativeTransport: true # Indicating whether to use the native transport (Epoll on Linux, KQueue on macOS) if available.In this case, true is used, meaning that Reactor Netty will attempt to use the native transport if it is supported on the platform
+  connectionProvider: # Manages connections and connection pool settings
+    name: webClientConnectionProvider # connection provider's specific name
+    maxConnections: 10 # The maximum number of connections allowed. It limits the total number of concurrent connections that can be established
+    pendingAcquireMaxCount: -1 # The maximum number of pending connection acquisitions. If set to a positive value, it limits the number of requests waiting to acquire a connection
+    pendingAcquireTimeout: -1 # (MilliSeconds) The timeout for acquiring a connection. If the acquisition process takes longer than this timeout, it may be considered unsuccessful
+    maxIdleTime: 60 # (seconds) The maximum time a connection can remain idle (unused) before it is considered for eviction
+    maxLifeTime: 120 # (Seconds) The maximum lifespan of a connection. After this duration, a connection is considered for eviction.
+  httpClient:
+    compress: true # Enables or disables automatic content compression for requests and responses. true to enable compression, false to disable compression.
+    connectTimeoutMillis: 5000 # (MilliSeconds) Sets the maximum time allowed for establishing a connection to the server.
+    tcpNoDelay: true # Enables or disables the TCP no-delay option. If set to true, it disables the Nagle's algorithm, which can improve the responsiveness of the communication by reducing the delay in sending small packets.
+    keepAlive: true # Enables or disables TCP keep-alive. If set to true, it enables TCP keep-alive, which sends periodic messages to check if the connection is still active.
+    reuseAddress: true # Enables or disables address reuse. If set to true, it enables address reuse, allowing multiple sockets to bind to the same local address.
+    maxInMemorySize: 31457280 # is byte count (30MB), Sets the maximum size of the in-memory buffer for response content. This parameter influences how much content can be buffered in memory during the processing of a response. If the content exceeds this size, it may trigger buffering to disk or other strategies.
