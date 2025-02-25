@@ -23,7 +23,7 @@ public class HeaderValidationFilter implements Filter {
    * List of required headers that must be present in the request.
    */
   private static final List<String> REQUIRED_HEADERS = Arrays.asList(
-      HeaderConstant.USER_ID, HeaderConstant.CLIENT_ID
+      HeaderConstant.USER_ID, HeaderConstant.CLIENT_ID, HeaderConstant.SUBSCRIBER_ID
   );
 
   /**
