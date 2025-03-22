@@ -28,6 +28,6 @@ public class CustomFields extends BaseEntity {
   private String fieldValue;
 
   @ManyToOne(targetEntity = Lead.class)
-  @JoinColumn(name = "lead_id", referencedColumnName = "id")
+  @JoinColumn(name = "lead_id", referencedColumnName = "id", nullable = false)
   private Lead lead;
 }

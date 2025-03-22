@@ -30,9 +30,10 @@ public class LeadAddress extends BaseEntity {
 
   private boolean isDefault;
 
-  @Column(nullable = false)
+  @Column(nullable = false, columnDefinition = "TEXT")
   private String addressLine1;
 
+  @Column(columnDefinition = "TEXT")
   private String addressLine2;
 
   @Column(nullable = false)
@@ -48,6 +49,6 @@ public class LeadAddress extends BaseEntity {
   private String country;
 
   @ManyToOne(targetEntity = Lead.class)
-  @JoinColumn(name = "lead_id", referencedColumnName = "id")
+  @JoinColumn(name = "lead_id", referencedColumnName = "id", nullable = false)
   private Lead lead;
 }

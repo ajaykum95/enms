@@ -40,7 +40,7 @@ public final class GlobalExceptionHandler {
       return aex.getExceptionList();
     } else if (ex instanceof HttpMessageNotReadableException hmnRdEx) {
       return Collections.singletonList(
-          BaseResponseError.builder().businessErrorCode(10000).errorMessage(ex.getMessage())
+          BaseResponseError.builder().businessErrorCode(50000).errorMessage(ex.getMessage())
               .errorCategory(ErrorCategory.ERROR).exType(ExceptionTypes.BAD_REQUEST_ERROR)
               // .errorStack("null") // TODO: Have to set this properly ...
               .build());
@@ -60,7 +60,7 @@ public final class GlobalExceptionHandler {
   private HttpStatus getHttpStatusCode(Exception ex) {
     if (ex instanceof AbhaBaseRunTimeException aex) {
       return getHttpStatusCode(aex);
-    } else if (ex instanceof HttpMessageNotReadableException hmnRdEx) {
+    } else if (ex instanceof HttpMessageNotReadableException) {
       return HttpStatus.BAD_REQUEST;
     }
     return HttpStatus.INTERNAL_SERVER_ERROR;

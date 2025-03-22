@@ -17,9 +17,7 @@ import org.springframework.http.RequestEntity;
 import org.springframework.util.CollectionUtils;
 
 public class ObjectMapperUtil {
-  public static Lead mapToSaveWebhookLead(RequestEntity<LeadRequest> webhookLeadRequestEntity) {
-    LeadRequest leadRequest = webhookLeadRequestEntity.getBody();
-    String userId = CommonUtil.getUserId(webhookLeadRequestEntity);
+  public static Lead mapToSaveWebhookLead(LeadRequest leadRequest, String userId) {
     Lead lead = Lead.builder()
         .name(leadRequest.getName())
         .url(leadRequest.getUrl())
@@ -40,16 +38,18 @@ public class ObjectMapperUtil {
       return;
     }
     List<CustomFields> customFields = customRequests.stream()
-        .map(customRequest -> mapToCustomLead(lead, customRequest))
+        .map(customRequest -> mapToCustomLead(lead, customRequest, userId))
         .toList();
     lead.setCustomFields(customFields);
   }
 
-  private static CustomFields mapToCustomLead(Lead lead, CustomRequest customRequest) {
+  private static CustomFields mapToCustomLead(Lead lead, CustomRequest customRequest, String userId) {
     return CustomFields.builder()
         .fieldName(customRequest.getFieldName())
         .fieldValue(customRequest.getFieldValue())
         .status(Status.ACTIVE)
+        .createdBy(userId)
+        .lead(lead)
         .build();
   }
 
