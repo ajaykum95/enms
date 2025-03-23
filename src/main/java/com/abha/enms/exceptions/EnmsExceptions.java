@@ -32,7 +32,9 @@ public enum EnmsExceptions implements BusinessExceptionDefintion {
   MAX_DEFAULT_ADDRESS_EXCEED(5011, ErrorCategory.ERROR, ExceptionTypes.BAD_REQUEST_ERROR,
       "Only one address can be set as default!"),
   MIN_DEFAULT_ADDRESS_REQUIRED(5012, ErrorCategory.ERROR, ExceptionTypes.BAD_REQUEST_ERROR,
-      "At least one address must be set as default!");
+      "At least one address must be set as default!"),
+  LEAD_STATUS_MISSING(5013, ErrorCategory.ERROR, ExceptionTypes.BAD_REQUEST_ERROR,
+      "Lead status is missing!");
 
   private final int businessErrorCode;
   private final ErrorCategory errorCategory;

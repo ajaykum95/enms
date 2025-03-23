@@ -36,6 +36,9 @@ public class RequestValidator {
     if (CollectionUtils.isEmpty(leadRequest.getContacts())) {
       throw buildException(EnmsExceptions.LEAD_CONTACTS_MISSING);
     }
+    if (StringUtils.isEmpty(leadRequest.getLeadStatus())) {
+      throw buildException(EnmsExceptions.LEAD_STATUS_MISSING);
+    }
     validateContacts(leadRequest);
     validateAddresses(leadRequest);
   }
