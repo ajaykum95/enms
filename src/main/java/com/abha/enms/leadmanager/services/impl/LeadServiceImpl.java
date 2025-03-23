@@ -10,7 +10,6 @@ import com.abha.enms.utils.CommonUtil;
 import com.abha.enms.utils.ObjectMapperUtil;
 import com.abha.sharedlibrary.enms.request.LeadRequest;
 import com.abha.sharedlibrary.enms.response.LeadResponse;
-import com.abha.sharedlibrary.shared.common.Utils;
 import com.abha.sharedlibrary.shared.common.response.CommonResponse;
 import jakarta.transaction.Transactional;
 import java.util.List;
@@ -31,10 +30,9 @@ public class LeadServiceImpl implements LeadService {
 
   @Transactional
   @Override
-  public LeadResponse saveWebhookLeadRequest(RequestEntity<LeadRequest> webhookLeadRequestEntity) {
-    String userId = CommonUtil.getUserId(webhookLeadRequestEntity);
-    Lead lead = ObjectMapperUtil.mapToSaveWebhookLead(
-        webhookLeadRequestEntity.getBody(), userId);
+  public LeadResponse saveLeadRequest(RequestEntity<LeadRequest> leadRequestEntity) {
+    String userId = CommonUtil.getUserId(leadRequestEntity);
+    Lead lead = ObjectMapperUtil.mapToSaveLead(leadRequestEntity.getBody(), userId);
     lead.setDuplicateOf(getDuplicateOfId(lead));
     Lead savedLead = leadDao.saveLead(lead);
     return LeadResponse.builder()
@@ -54,17 +52,17 @@ public class LeadServiceImpl implements LeadService {
   }
 
   @Override
-  public CommonResponse saveWebhookLeadsRequest(RequestEntity<List<LeadRequest>> webhookLeadRequestEntity) {
-    List<Lead> leadList = mapToLeads(webhookLeadRequestEntity);
+  public CommonResponse saveLeadsRequest(RequestEntity<List<LeadRequest>> leadRequestEntity) {
+    List<Lead> leadList = mapToLeads(leadRequestEntity);
     leadDao.saveAllLead(leadList);
     return new CommonResponse(true, AppConstant.SAVE_LEAD_MESSAGE);
   }
 
-  private List<Lead> mapToLeads(RequestEntity<List<LeadRequest>> webhookLeadRequestEntity) {
-    String userId = CommonUtil.getUserId(webhookLeadRequestEntity);
-    return webhookLeadRequestEntity.getBody().stream()
+  private List<Lead> mapToLeads(RequestEntity<List<LeadRequest>> leadRequestEntity) {
+    String userId = CommonUtil.getUserId(leadRequestEntity);
+    return leadRequestEntity.getBody().stream()
         .map(leadRequest -> {
-          Lead lead = ObjectMapperUtil.mapToSaveWebhookLead(leadRequest, userId);
+          Lead lead = ObjectMapperUtil.mapToSaveLead(leadRequest, userId);
           lead.setDuplicateOf(getDuplicateOfId(lead));
           return lead;
         }).collect(Collectors.toList());

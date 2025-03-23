@@ -1,5 +1,7 @@
 package com.abha.enms.utils;
 
+import static com.abha.sharedlibrary.shared.common.ExceptionUtil.buildException;
+
 import com.abha.enms.exceptions.EnmsExceptions;
 import com.abha.sharedlibrary.enms.enums.ContactType;
 import com.abha.sharedlibrary.enms.request.ContactRequest;
@@ -14,19 +16,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.RequestEntity;
 import org.springframework.util.CollectionUtils;
 
-import static com.abha.sharedlibrary.shared.common.ExceptionUtil.buildException;
-
 public class RequestValidator {
-  public static void validateWebhookLeadRequest(
-      RequestEntity<LeadRequest> webhookLeadRequestEntity) {
-    if (Objects.isNull(webhookLeadRequestEntity)) {
-      throw buildException(EnmsExceptions.WEBHOOK_REQUEST_MISSING);
+  public static void validateLeadRequest(
+      RequestEntity<LeadRequest> leadRequestEntity) {
+    if (Objects.isNull(leadRequestEntity)) {
+      throw buildException(EnmsExceptions.LEAD_REQUEST_MISSING);
     }
-    LeadRequest webhookLeadRequest = webhookLeadRequestEntity.getBody();
-    validateWebhookLeadRequest(webhookLeadRequest);
+    LeadRequest leadRequest = leadRequestEntity.getBody();
+    validateLeadRequest(leadRequest);
   }
 
-  private static void validateWebhookLeadRequest(LeadRequest leadRequest) {
+  private static void validateLeadRequest(LeadRequest leadRequest) {
     if (StringUtils.isEmpty(leadRequest.getSource())) {
       throw buildException(EnmsExceptions.REQUEST_SOURCE_MISSING);
     }
@@ -81,15 +81,14 @@ public class RequestValidator {
     });
   }
 
-  public static void validateWebhookLeadsRequest(
-      RequestEntity<List<LeadRequest>> webhookLeadRequestEntity) {
-    if (Objects.isNull(webhookLeadRequestEntity)) {
-      throw buildException(EnmsExceptions.WEBHOOK_REQUEST_MISSING);
+  public static void validateLeadsRequest(RequestEntity<List<LeadRequest>> leadRequestEntity) {
+    if (Objects.isNull(leadRequestEntity)) {
+      throw buildException(EnmsExceptions.LEAD_REQUEST_MISSING);
     }
-    List<LeadRequest> webhookLeadRequestList = webhookLeadRequestEntity.getBody();
-    if (webhookLeadRequestList.size() > 500) {
-      throw buildException(EnmsExceptions.MAX_LEAD_SIZE_EXCEED, 500, webhookLeadRequestList.size());
+    List<LeadRequest> leadRequestList = leadRequestEntity.getBody();
+    if (leadRequestList.size() > 100) {
+      throw buildException(EnmsExceptions.MAX_LEAD_SIZE_EXCEED, 100, leadRequestList.size());
     }
-    webhookLeadRequestList.forEach(RequestValidator::validateWebhookLeadRequest);
+    leadRequestList.forEach(RequestValidator::validateLeadRequest);
   }
 }

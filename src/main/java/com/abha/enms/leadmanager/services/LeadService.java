@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.http.RequestEntity;
 
 public interface LeadService {
-  LeadResponse saveWebhookLeadRequest(RequestEntity<LeadRequest> webhookLeadRequestEntity);
+  LeadResponse saveLeadRequest(RequestEntity<LeadRequest> leadRequestEntity);
 
-  CommonResponse saveWebhookLeadsRequest(RequestEntity<List<LeadRequest>> webhookLeadRequestEntity);
+  CommonResponse saveLeadsRequest(RequestEntity<List<LeadRequest>> leadRequestEntity);
 }

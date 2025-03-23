@@ -9,7 +9,7 @@ import com.abha.sharedlibrary.exceptions.ExceptionTypes;
  */
 public enum EnmsExceptions implements BusinessExceptionDefintion {
   DB_ERROR(5000, ErrorCategory.ERROR, ExceptionTypes.DB_ERROR, "%s"),
-  WEBHOOK_REQUEST_MISSING(5001, ErrorCategory.ERROR, ExceptionTypes.BAD_REQUEST_ERROR,
+  LEAD_REQUEST_MISSING(5001, ErrorCategory.ERROR, ExceptionTypes.BAD_REQUEST_ERROR,
       "Webhook request missing!"),
   REQUEST_SOURCE_MISSING(5002, ErrorCategory.ERROR, ExceptionTypes.BAD_REQUEST_ERROR,
       "The source name is missing!"),

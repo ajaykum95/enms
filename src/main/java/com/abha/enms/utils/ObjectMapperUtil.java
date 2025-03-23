@@ -17,7 +17,7 @@ import org.springframework.http.RequestEntity;
 import org.springframework.util.CollectionUtils;
 
 public class ObjectMapperUtil {
-  public static Lead mapToSaveWebhookLead(LeadRequest leadRequest, String userId) {
+  public static Lead mapToSaveLead(LeadRequest leadRequest, String userId) {
     Lead lead = Lead.builder()
         .name(leadRequest.getName())
         .url(leadRequest.getUrl())
