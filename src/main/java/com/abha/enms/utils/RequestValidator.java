@@ -15,11 +15,11 @@ import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.RequestEntity;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 public class RequestValidator {
-  public static void validateLeadRequest(
-      RequestEntity<LeadRequest> leadRequestEntity) {
-    if (Objects.isNull(leadRequestEntity)) {
+  public static void validateLeadRequest(RequestEntity<LeadRequest> leadRequestEntity) {
+    if (Objects.isNull(leadRequestEntity) || !leadRequestEntity.hasBody()) {
       throw buildException(EnmsExceptions.LEAD_REQUEST_MISSING);
     }
     LeadRequest leadRequest = leadRequestEntity.getBody();
@@ -85,13 +85,28 @@ public class RequestValidator {
   }
 
   public static void validateLeadsRequest(RequestEntity<List<LeadRequest>> leadRequestEntity) {
-    if (Objects.isNull(leadRequestEntity)) {
+    if (Objects.isNull(leadRequestEntity) || !leadRequestEntity.hasBody()) {
       throw buildException(EnmsExceptions.LEAD_REQUEST_MISSING);
     }
     List<LeadRequest> leadRequestList = leadRequestEntity.getBody();
-    if (leadRequestList.size() > 100) {
-      throw buildException(EnmsExceptions.MAX_LEAD_SIZE_EXCEED, 100, leadRequestList.size());
+    if (leadRequestList.size() > 999) {
+      throw buildException(EnmsExceptions.MAX_LEAD_SIZE_EXCEED, 999, leadRequestList.size());
     }
     leadRequestList.forEach(RequestValidator::validateLeadRequest);
+  }
+
+  public static void validateImportLeads(RequestEntity<MultipartFile> fileRequestEntity) {
+    if (Objects.isNull(fileRequestEntity) || !fileRequestEntity.hasBody()) {
+      throw buildException(EnmsExceptions.IMPORT_LEADS_REQ_MISSING);
+    }
+    if (fileRequestEntity.getBody().isEmpty()) {
+      throw buildException(EnmsExceptions.FILE_MISSING);
+    }
+    MultipartFile file = fileRequestEntity.getBody();
+    String fileName = file.getOriginalFilename();
+    if (!fileName.toLowerCase().endsWith(AppConstant.XLSX)
+        || !AppConstant.XLSX_CONTENT_TYPE.equalsIgnoreCase(file.getContentType())) {
+      throw buildException(EnmsExceptions.INVALID_FILE_FORMAT);
+    }
   }
 }

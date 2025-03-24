@@ -10,13 +10,14 @@ import com.abha.enms.utils.CommonUtil;
 import com.abha.enms.utils.ObjectMapperUtil;
 import com.abha.sharedlibrary.enms.request.LeadRequest;
 import com.abha.sharedlibrary.enms.response.LeadResponse;
-import com.abha.sharedlibrary.shared.common.response.CommonResponse;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.RequestEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class LeadServiceImpl implements LeadService {
@@ -51,11 +52,16 @@ public class LeadServiceImpl implements LeadService {
     return leadDao.fetchDuplicateLeadByContactDetailsIn(contactValues);
   }
 
+  @Async
   @Override
-  public CommonResponse saveLeadsRequest(RequestEntity<List<LeadRequest>> leadRequestEntity) {
+  public void saveLeadsRequest(RequestEntity<List<LeadRequest>> leadRequestEntity) {
     List<Lead> leadList = mapToLeads(leadRequestEntity);
     leadDao.saveAllLead(leadList);
-    return new CommonResponse(true, AppConstant.SAVE_LEAD_MESSAGE);
+  }
+
+  @Override
+  public void importLeads(RequestEntity<MultipartFile> fileRequestEntity) {
+    //TODO
   }
 
   private List<Lead> mapToLeads(RequestEntity<List<LeadRequest>> leadRequestEntity) {

@@ -5,9 +5,12 @@ import com.abha.sharedlibrary.enms.response.LeadResponse;
 import com.abha.sharedlibrary.shared.common.response.CommonResponse;
 import java.util.List;
 import org.springframework.http.RequestEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface LeadService {
   LeadResponse saveLeadRequest(RequestEntity<LeadRequest> leadRequestEntity);
 
-  CommonResponse saveLeadsRequest(RequestEntity<List<LeadRequest>> leadRequestEntity);
+  void saveLeadsRequest(RequestEntity<List<LeadRequest>> leadRequestEntity);
+
+  void importLeads(RequestEntity<MultipartFile> fileRequestEntity);
 }
