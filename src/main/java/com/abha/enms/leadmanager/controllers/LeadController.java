@@ -7,9 +7,12 @@ import com.abha.sharedlibrary.enms.request.LeadRequest;
 import com.abha.sharedlibrary.enms.response.LeadResponse;
 import com.abha.sharedlibrary.shared.common.response.CommonResponse;
 import java.util.List;
+import java.util.Map;
+import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,10 +41,11 @@ public class LeadController {
     return ResponseEntity.ok(new CommonResponse(true, AppConstant.SAVE_LEAD_IN_PROGRESS));
   }
 
-  @PostMapping(value = "/import", consumes = "multipart/form-data")
-  public ResponseEntity<CommonResponse> importLeads(RequestEntity<MultipartFile> fileRequestEntity) {
-    RequestValidator.validateImportLeads(fileRequestEntity);
-    leadService.importLeads(fileRequestEntity);
+  @PostMapping(value = "/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<CommonResponse> importLeads(
+      @RequestHeader Map<String, String> headers, @RequestParam("file") MultipartFile file) {
+    RequestValidator.validateImportLeads(file);
+    leadService.importLeads(headers, file);
     return ResponseEntity.ok(new CommonResponse(true, AppConstant.IMPORT_LEADS_PROGRESS));
   }
 }

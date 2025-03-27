@@ -13,15 +13,14 @@ import com.abha.sharedlibrary.shared.common.request.AddressRequest;
 import com.abha.sharedlibrary.shared.enums.Status;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.http.RequestEntity;
 import org.springframework.util.CollectionUtils;
 
 public class ObjectMapperUtil {
   public static Lead mapToSaveLead(LeadRequest leadRequest, String userId) {
     Lead lead = Lead.builder()
-        .name(leadRequest.getName())
+        .companyName(leadRequest.getName())
         .url(leadRequest.getUrl())
-        .description(leadRequest.getDescription())
+        .companyDesc(leadRequest.getDescription())
         .source(leadRequest.getSource())
         .status(Status.ACTIVE)
         .createdBy(userId)

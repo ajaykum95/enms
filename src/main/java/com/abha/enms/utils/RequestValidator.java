@@ -11,6 +11,7 @@ import com.abha.sharedlibrary.shared.common.request.AddressRequest;
 import com.abha.sharedlibrary.shared.validator.EmailValidator;
 import com.abha.sharedlibrary.shared.validator.PhoneValidator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.RequestEntity;
@@ -95,14 +96,10 @@ public class RequestValidator {
     leadRequestList.forEach(RequestValidator::validateLeadRequest);
   }
 
-  public static void validateImportLeads(RequestEntity<MultipartFile> fileRequestEntity) {
-    if (Objects.isNull(fileRequestEntity) || !fileRequestEntity.hasBody()) {
-      throw buildException(EnmsExceptions.IMPORT_LEADS_REQ_MISSING);
-    }
-    if (fileRequestEntity.getBody().isEmpty()) {
+  public static void validateImportLeads(MultipartFile file) {
+    if (file.isEmpty()) {
       throw buildException(EnmsExceptions.FILE_MISSING);
     }
-    MultipartFile file = fileRequestEntity.getBody();
     String fileName = file.getOriginalFilename();
     if (!fileName.toLowerCase().endsWith(AppConstant.XLSX)
         || !AppConstant.XLSX_CONTENT_TYPE.equalsIgnoreCase(file.getContentType())) {

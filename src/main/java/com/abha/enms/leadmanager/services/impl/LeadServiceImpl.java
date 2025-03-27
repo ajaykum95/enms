@@ -1,6 +1,7 @@
 package com.abha.enms.leadmanager.services.impl;
 
 import com.abha.enms.leadmanager.daos.LeadDao;
+import com.abha.enms.leadmanager.dtos.ExcelLeadDto;
 import com.abha.enms.leadmanager.models.Contact;
 import com.abha.enms.leadmanager.models.ContactDetails;
 import com.abha.enms.leadmanager.models.Lead;
@@ -10,15 +11,21 @@ import com.abha.enms.utils.CommonUtil;
 import com.abha.enms.utils.ObjectMapperUtil;
 import com.abha.sharedlibrary.enms.request.LeadRequest;
 import com.abha.sharedlibrary.enms.response.LeadResponse;
+import com.abha.sharedlibrary.shared.common.ExcelFileUtil;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.RequestEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+@Slf4j
 @Service
 public class LeadServiceImpl implements LeadService {
 
@@ -59,9 +66,19 @@ public class LeadServiceImpl implements LeadService {
     leadDao.saveAllLead(leadList);
   }
 
+//  @Async
   @Override
-  public void importLeads(RequestEntity<MultipartFile> fileRequestEntity) {
-    //TODO
+  public void importLeads(Map<String, String> headers, MultipartFile file) {
+    try {
+      List<ExcelLeadDto> excelLeadDtos = ExcelFileUtil.readExcel(
+          file.getInputStream(), ExcelLeadDto.class);
+      if (!CollectionUtils.isEmpty(excelLeadDtos)) {
+        //TODO
+      }
+    } catch (Exception e) {
+      log.error("An error occurred while processing the file, Error : {}",
+          ExceptionUtils.getStackTrace(e));
+    }
   }
 
   private List<Lead> mapToLeads(RequestEntity<List<LeadRequest>> leadRequestEntity) {
