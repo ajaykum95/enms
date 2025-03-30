@@ -40,7 +40,11 @@ public enum EnmsExceptions implements BusinessExceptionDefintion {
   FILE_MISSING(5015, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
       "File is missing!"),
   INVALID_FILE_FORMAT(5016, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
-      "Invalid file format. Only Excel files with the .xlsx extension are allowed!");
+      "Invalid file format. Only Excel files with the .xlsx extension are allowed!"),
+  CUSTOM_FIELD_MISSING(5017, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
+      "Custom field is missing!"),
+  CUSTOM_FIELD_VALUE_MISSING(5018, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
+      "Custom field value is missing!");
 
   private final int businessErrorCode;
   private final ErrorCategory errorCategory;

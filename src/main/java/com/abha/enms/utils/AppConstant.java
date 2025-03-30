@@ -6,4 +6,6 @@ public class AppConstant {
   public static final String XLSX = ".xlsx";
   public static final String XLSX_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
   public static final String IMPORT_LEADS_PROGRESS = "Importing leads is in progress!";
+  public static final String TRUE = "TRUE";
+  public static final String YES = "Yes";
 }

@@ -33,6 +33,8 @@ public class Lead extends BaseEntity {
   private Long duplicateOf;
   @Column(nullable = false)
   private String leadStatus;
+  @Column(nullable = false)
+  private Long subscriberId;
   @OneToMany(mappedBy = "lead", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
   private List<Contact> contacts;
   @OneToMany(mappedBy = "lead", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
