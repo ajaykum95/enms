@@ -35,7 +35,8 @@ public class LeadController {
   }
 
   @PostMapping("/saveAll")
-  public ResponseEntity<CommonResponse> saveLeads(RequestEntity<List<LeadRequest>> leadRequestEntity) {
+  public ResponseEntity<CommonResponse> saveLeads(
+      RequestEntity<List<LeadRequest>> leadRequestEntity) {
     RequestValidator.validateLeadsRequest(leadRequestEntity);
     leadService.saveLeadsRequest(leadRequestEntity);
     return ResponseEntity.ok(new CommonResponse(true, AppConstant.SAVE_LEAD_IN_PROGRESS));

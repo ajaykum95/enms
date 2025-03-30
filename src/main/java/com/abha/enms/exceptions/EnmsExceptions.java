@@ -30,9 +30,9 @@ public enum EnmsExceptions implements BusinessExceptionDefintion {
   CONTACT_NAME_MISSING(5010, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
       "Contact name is missing!"),
   MAX_DEFAULT_ADDRESS_EXCEED(5011, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
-      "Only one address can be set as default!"),
+      "Only one address can be set as primary!"),
   MIN_DEFAULT_ADDRESS_REQUIRED(5012, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
-      "At least one address must be set as default!"),
+      "At least one address must be set as primary!"),
   LEAD_STATUS_MISSING(5013, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
       "Lead status is missing!"),
   IMPORT_LEADS_REQ_MISSING(5014, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
@@ -44,7 +44,11 @@ public enum EnmsExceptions implements BusinessExceptionDefintion {
   CUSTOM_FIELD_MISSING(5017, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
       "Custom field is missing!"),
   CUSTOM_FIELD_VALUE_MISSING(5018, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
-      "Custom field value is missing!");
+      "Custom field value is missing!"),
+  MAX_DEFAULT_CONTACT_EXCEED(5011, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
+      "Only one contact can be set as primary!"),
+  MIN_DEFAULT_CONTACT_REQUIRED(5012, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
+      "At least one contact must be set as primary!");
 
   private final int businessErrorCode;
   private final ErrorCategory errorCategory;

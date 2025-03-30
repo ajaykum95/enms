@@ -71,7 +71,7 @@ public class RequestValidator {
       return;
     }
     long defaultCount = addresses.stream()
-        .filter(AddressRequest::isDefault)
+        .filter(AddressRequest::isPrimary)
         .count();
     if (defaultCount == 0) {
       throw buildException(EnmsExceptions.MIN_DEFAULT_ADDRESS_REQUIRED);
@@ -99,6 +99,14 @@ public class RequestValidator {
     List<ContactRequest> contacts = leadRequest.getContacts();
     if (CollectionUtils.isEmpty(contacts)) {
       throw buildException(EnmsExceptions.CONTACT_DETAILS_MISSING);
+    }
+    long defaultCount = contacts.stream()
+        .filter(ContactRequest::isPrimary)
+        .count();
+    if (defaultCount == 0) {
+      throw buildException(EnmsExceptions.MIN_DEFAULT_CONTACT_REQUIRED);
+    } else if (defaultCount > 1) {
+      throw buildException(EnmsExceptions.MAX_DEFAULT_CONTACT_EXCEED);
     }
     contacts.forEach(contactRequest -> {
       List<ContactTypeRequest> contactDetails = contactRequest.getContactDetails();
@@ -165,6 +173,14 @@ public class RequestValidator {
     List<Contact> contacts = lead.getContacts();
     if (CollectionUtils.isEmpty(contacts)) {
       throw buildException(EnmsExceptions.CONTACT_DETAILS_MISSING);
+    }
+    long defaultCount = contacts.stream()
+        .filter(Contact::isPrimary)
+        .count();
+    if (defaultCount == 0) {
+      throw buildException(EnmsExceptions.MIN_DEFAULT_CONTACT_REQUIRED);
+    } else if (defaultCount > 1) {
+      throw buildException(EnmsExceptions.MAX_DEFAULT_CONTACT_EXCEED);
     }
     contacts.forEach(contact -> {
       List<ContactDetails> contactDetails = contact.getContactDetails();

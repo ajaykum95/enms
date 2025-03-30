@@ -88,7 +88,7 @@ public class LeadServiceImpl implements LeadService {
     List<Lead> leadList = mapToLeads(leadRequestEntity);
     leadDao.saveAllLead(leadList);
   }
-//TODO 1- VALIDATE IS PRIMARY CONTACT,
+//TODO DUPLICATE LEAD
   //  @Async
   @Override
   public void importLeads(Map<String, String> headers, MultipartFile file) {
@@ -119,6 +119,7 @@ public class LeadServiceImpl implements LeadService {
     return SendNotificationRequest.builder().build();
   }
 
+  @Transactional
   private void processExcelLeadData() {
     if (MapUtils.isEmpty(excelLeadMap)) {
       return;
@@ -127,7 +128,9 @@ public class LeadServiceImpl implements LeadService {
     for (Map.Entry<String, Lead> entry : excelLeadMap.entrySet()) {
       try {
         RequestValidator.validateExcelLeadRequest(entry.getValue());
-        leadList.add(entry.getValue());
+        Lead lead = entry.getValue();
+        lead.setDuplicateOf(getDuplicateOfId(lead));
+        leadList.add(lead);
       } catch (Exception e) {
         log.error("An error occurred while importing excel lead, Error : {}",
             ExceptionUtils.getStackTrace(e));
@@ -228,7 +231,7 @@ public class LeadServiceImpl implements LeadService {
         .state(dto.getState())
         .zipcode(dto.getZipcode())
         .country(dto.getCountry())
-        .isPrimary(AppConstant.TRUE.equalsIgnoreCase(dto.getIsDefault()))
+        .isPrimary(AppConstant.YES.equalsIgnoreCase(dto.getIsPrimaryAddress()))
         .status(Status.ACTIVE)
         .createdBy(createdBy)
         .lead(lead)
@@ -247,24 +250,25 @@ public class LeadServiceImpl implements LeadService {
         .anyMatch(StringUtils::isEmpty) || isContactDetailPresent(lead, dto)) {
       return null;
     }
-    return Contact.builder()
+    Contact contact = Contact.builder()
         .name(dto.getContactName())
         .title(dto.getContactTitle())
         .url(dto.getUrl())
         .lead(lead)
         .status(Status.ACTIVE)
         .createdBy(createdBy)
-        .contactDetails(Collections.singletonList(mapToContactDetails(dto)))
         .isPrimary(getIsPrimaryContact(lead.getContacts(), dto))
         .build();
+    contact.setContactDetails(Collections.singletonList(mapToContactDetails(dto, contact)));
+    return contact;
   }
 
   private boolean getIsPrimaryContact(List<Contact> contacts, ExcelLeadDto dto) {
     if (CollectionUtils.isEmpty(contacts)) {
-      return AppConstant.YES.equalsIgnoreCase(dto.getIsPrimary());
+      return AppConstant.YES.equalsIgnoreCase(dto.getIsPrimaryContact());
     }
     boolean anyMatch = contacts.stream().anyMatch(Contact::isPrimary);
-    return !anyMatch && AppConstant.YES.equalsIgnoreCase(dto.getIsPrimary());
+    return !anyMatch && AppConstant.YES.equalsIgnoreCase(dto.getIsPrimaryContact());
   }
 
   private boolean isContactDetailPresent(Lead lead, ExcelLeadDto dto) {
@@ -305,11 +309,12 @@ public class LeadServiceImpl implements LeadService {
         );
   }
 
-  private ContactDetails mapToContactDetails(ExcelLeadDto dto) {
+  private ContactDetails mapToContactDetails(ExcelLeadDto dto, Contact contact) {
     return ContactDetails.builder()
         .contactType(ContactType.valueOf(dto.getContactType()))
         .value(dto.getContactValue())
         .status(Status.ACTIVE)
+        .contact(contact)
         .build();
   }
 

@@ -44,8 +44,8 @@ public class ExcelLeadDto {
   @ExcelHeader(headerName = "Contact Value", columnIndex = 9)
   private String contactValue;
 
-  @ExcelHeader(headerName = "Primary", columnIndex = 10)
-  private String isPrimary;
+  @ExcelHeader(headerName = "Primary contact", columnIndex = 10)
+  private String isPrimaryContact;
 
   @ExcelHeader(headerName = "Address Type", columnIndex = 11)
   private String addressType;
@@ -68,8 +68,8 @@ public class ExcelLeadDto {
   @ExcelHeader(headerName = "Country", columnIndex = 17)
   private String country;
 
-  @ExcelHeader(headerName = "Default", columnIndex = 18)
-  private String isDefault;
+  @ExcelHeader(headerName = "Primary address", columnIndex = 18)
+  private String isPrimaryAddress;
 
   @ExcelHeader(headerName = "Custom field name", columnIndex = 19)
   private String customFieldName;

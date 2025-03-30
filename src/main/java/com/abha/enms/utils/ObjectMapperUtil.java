@@ -67,7 +67,7 @@ public class ObjectMapperUtil {
       Lead lead, AddressRequest addressRequest, String userId) {
     return LeadAddress.builder()
         .addressType(addressRequest.getAddressType())
-        .isPrimary(addressRequest.isDefault())
+        .isPrimary(addressRequest.isPrimary())
         .addressLine1(addressRequest.getAddressLine1())
         .addressLine2(addressRequest.getAddressLine2())
         .city(addressRequest.getCity())
