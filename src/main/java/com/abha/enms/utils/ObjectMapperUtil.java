@@ -16,6 +16,8 @@ import com.abha.sharedlibrary.shared.common.request.AddressRequest;
 import com.abha.sharedlibrary.shared.common.response.PaginationResponse;
 import com.abha.sharedlibrary.shared.enums.Status;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -135,7 +137,7 @@ public class ObjectMapperUtil {
   public static LeadResponseData mapToLeadResponse(Page<Lead> page) {
     if (Objects.isNull(page)) {
       return LeadResponseData.builder()
-          .leadResponseList(new ArrayList<>())
+          .leadResponseList(Collections.emptyList())
           .paginationResponse(PaginationResponse.builder()
               .pageNumber(0)
               .pageNumber(0)

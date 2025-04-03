@@ -15,6 +15,7 @@ import com.abha.sharedlibrary.enms.request.CustomRequest;
 import com.abha.sharedlibrary.enms.request.LeadRequest;
 import com.abha.sharedlibrary.enms.request.LeadSearchFilter;
 import com.abha.sharedlibrary.shared.common.request.AddressRequest;
+import com.abha.sharedlibrary.shared.common.request.PaginationRequest;
 import com.abha.sharedlibrary.shared.validator.EmailValidator;
 import com.abha.sharedlibrary.shared.validator.PhoneValidator;
 import java.util.List;
@@ -26,7 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class RequestValidator {
   public static void validateLeadRequest(RequestEntity<LeadRequest> leadRequestEntity) {
-    if (Objects.isNull(leadRequestEntity) || !leadRequestEntity.hasBody()) {
+    if (Objects.isNull(leadRequestEntity) || Objects.isNull(leadRequestEntity.getBody())) {
       throw buildException(EnmsExceptions.LEAD_REQUEST_MISSING);
     }
     LeadRequest leadRequest = leadRequestEntity.getBody();
@@ -131,7 +132,7 @@ public class RequestValidator {
   }
 
   public static void validateLeadsRequest(RequestEntity<List<LeadRequest>> leadRequestEntity) {
-    if (Objects.isNull(leadRequestEntity) || !leadRequestEntity.hasBody()) {
+    if (Objects.isNull(leadRequestEntity) || Objects.isNull(leadRequestEntity.getBody())) {
       throw buildException(EnmsExceptions.LEAD_REQUEST_MISSING);
     }
     List<LeadRequest> leadRequestList = leadRequestEntity.getBody();
@@ -221,6 +222,22 @@ public class RequestValidator {
 
   public static void validateLeadSearchRequest(
           RequestEntity<LeadSearchFilter> leadSearchFilterRequestEntity) {
-
+    if (Objects.isNull(leadSearchFilterRequestEntity)
+        || Objects.isNull(leadSearchFilterRequestEntity.getBody())) {
+      throw buildException(EnmsExceptions.LEAD_SEARCH_FILTER_EXCEPTION);
+    }
+    LeadSearchFilter leadSearchFilter = leadSearchFilterRequestEntity.getBody();
+    PaginationRequest paginationRequest = leadSearchFilter.getPaginationRequest();
+    if (Objects.nonNull(paginationRequest)) {
+      if (paginationRequest.getPageSize() == 0) {
+        throw buildException(EnmsExceptions.PAGE_SIZE_INVALID);
+      }
+      if (StringUtils.isEmpty(paginationRequest.getOrderByColumn())) {
+        throw buildException(EnmsExceptions.ORDER_BY_COLUMN_MISSING);
+      }
+      if (Objects.isNull(paginationRequest.getSortOrder())) {
+        throw buildException(EnmsExceptions.SORT_ORDER_MISSING);
+      }
+    }
   }
 }

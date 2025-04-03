@@ -23,6 +23,7 @@ import com.abha.sharedlibrary.shared.common.ExcelFileUtil;
 import com.abha.sharedlibrary.shared.common.request.PaginationRequest;
 import com.abha.sharedlibrary.shared.constants.HeaderConstant;
 import com.abha.sharedlibrary.shared.enums.AddressType;
+import com.abha.sharedlibrary.shared.enums.SortOrder;
 import com.abha.sharedlibrary.shared.enums.Status;
 import jakarta.transaction.Transactional;
 import java.util.ArrayList;
@@ -133,18 +134,21 @@ public class LeadServiceImpl implements LeadService {
     Long subscriberId = Long.parseLong(CommonUtil.getHeaderData(leadSearchFilterRequestEntity.getHeaders(),
             HeaderConstant.SUBSCRIBER_ID));
     LeadSearchFilter leadSearchFilter = leadSearchFilterRequestEntity.getBody();
-    Pageable pageable = getSearchLeadPageable(leadSearchFilter.getPaginationRequest());
+    Pageable pageable = getSearchLeadPageable(leadSearchFilter);
     Page<Lead> page = leadDao.getAllLeadsBySubscriberIdAndStatusNot(
         subscriberId, Status.DELETED, pageable);
     return ObjectMapperUtil.mapToLeadResponse(page);
   }
 
-  private Pageable getSearchLeadPageable(PaginationRequest paginationRequest) {
-    if (StringUtils.isEmpty(paginationRequest.getOrderByColumn())) {
-      return PageRequest.of(paginationRequest.getPageNumber(), paginationRequest.getPageSize(),
-              Sort.by(Sort.Order.desc("id")));
-    }
+  private Pageable getSearchLeadPageable(LeadSearchFilter leadSearchFilter) {
+    PaginationRequest paginationRequest = Optional.ofNullable(leadSearchFilter.getPaginationRequest())
+        .orElse(new PaginationRequest(0, 10, "id", SortOrder.DESC));
 
+    Sort sort = (SortOrder.ASC.equals(paginationRequest.getSortOrder()))
+        ? Sort.by(Sort.Order.asc(paginationRequest.getOrderByColumn()))
+        : Sort.by(Sort.Order.desc(paginationRequest.getOrderByColumn()));
+
+    return PageRequest.of(paginationRequest.getPageNumber(), paginationRequest.getPageSize(), sort);
   }
 
   private SendNotificationRequest buildSendNotificationRequest(Map<String, String> headers) {

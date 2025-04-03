@@ -50,7 +50,15 @@ public enum EnmsExceptions implements BusinessExceptionDefintion {
   MIN_DEFAULT_CONTACT_REQUIRED(5012, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
       "At least one contact must be set as primary!"),
   HEADER_DATA_NOT_FOUND(5013, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
-      "%s not present in headers!");
+      "%s not present in headers!"),
+  LEAD_SEARCH_FILTER_EXCEPTION(5014, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
+      "Lead search filter not present!"),
+  PAGE_SIZE_INVALID(5015, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
+      "Invalid page size, it should be greater than 0."),
+  ORDER_BY_COLUMN_MISSING(5016, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
+      "Order by column is missing!"),
+  SORT_ORDER_MISSING(5017, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
+      "Sort order is missing!");
 
   private final int businessErrorCode;
   private final ErrorCategory errorCategory;

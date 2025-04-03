@@ -32,7 +32,8 @@ public class LeadController {
   }
 
   @PostMapping
-  public ResponseEntity<LeadResponseData> getAllLeads(RequestEntity<LeadSearchFilter> leadSearchFilterRequestEntity) {
+  public ResponseEntity<LeadResponseData> getAllLeads(
+      RequestEntity<LeadSearchFilter> leadSearchFilterRequestEntity) {
     RequestValidator.validateLeadSearchRequest(leadSearchFilterRequestEntity);
     return ResponseEntity.ok(leadService.fetchAllLeads(leadSearchFilterRequestEntity));
   }
