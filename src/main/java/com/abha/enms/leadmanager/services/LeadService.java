@@ -1,6 +1,7 @@
 package com.abha.enms.leadmanager.services;
 
 import com.abha.sharedlibrary.enms.request.LeadRequest;
+import com.abha.sharedlibrary.enms.request.LeadSearchFilter;
 import com.abha.sharedlibrary.enms.response.LeadResponseData;
 import com.abha.sharedlibrary.enms.response.LeadSaveResponse;
 import java.util.List;
@@ -15,5 +16,5 @@ public interface LeadService {
 
   void importLeads(Map<String, String> headers, MultipartFile file);
 
-  LeadResponseData fetchAllLeads(int pageNumber, int pageSize, Map<String, String> headers);
+  LeadResponseData fetchAllLeads(RequestEntity<LeadSearchFilter> leadSearchFilterRequestEntity);
 }

@@ -13,6 +13,7 @@ import com.abha.sharedlibrary.enms.request.ContactRequest;
 import com.abha.sharedlibrary.enms.request.ContactTypeRequest;
 import com.abha.sharedlibrary.enms.request.CustomRequest;
 import com.abha.sharedlibrary.enms.request.LeadRequest;
+import com.abha.sharedlibrary.enms.request.LeadSearchFilter;
 import com.abha.sharedlibrary.shared.common.request.AddressRequest;
 import com.abha.sharedlibrary.shared.validator.EmailValidator;
 import com.abha.sharedlibrary.shared.validator.PhoneValidator;
@@ -216,5 +217,10 @@ public class RequestValidator {
         throw buildException(EnmsExceptions.CUSTOM_FIELD_VALUE_MISSING);
       }
     });
+  }
+
+  public static void validateLeadSearchRequest(
+          RequestEntity<LeadSearchFilter> leadSearchFilterRequestEntity) {
+
   }
 }

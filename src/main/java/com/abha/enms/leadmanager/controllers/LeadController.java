@@ -4,6 +4,7 @@ import com.abha.enms.leadmanager.services.LeadService;
 import com.abha.enms.utils.AppConstant;
 import com.abha.enms.utils.RequestValidator;
 import com.abha.sharedlibrary.enms.request.LeadRequest;
+import com.abha.sharedlibrary.enms.request.LeadSearchFilter;
 import com.abha.sharedlibrary.enms.response.LeadResponseData;
 import com.abha.sharedlibrary.enms.response.LeadSaveResponse;
 import com.abha.sharedlibrary.shared.common.response.CommonResponse;
@@ -30,11 +31,10 @@ public class LeadController {
     this.leadService = leadService;
   }
 
-  @GetMapping
-  public ResponseEntity<LeadResponseData> getAllLeads(
-      @RequestHeader Map<String, String> headers, @RequestParam(defaultValue = "0") int pageNumber,
-      @RequestParam(defaultValue = "10") int pageSize) {
-    return ResponseEntity.ok(leadService.fetchAllLeads(pageNumber, pageSize, headers));
+  @PostMapping
+  public ResponseEntity<LeadResponseData> getAllLeads(RequestEntity<LeadSearchFilter> leadSearchFilterRequestEntity) {
+    RequestValidator.validateLeadSearchRequest(leadSearchFilterRequestEntity);
+    return ResponseEntity.ok(leadService.fetchAllLeads(leadSearchFilterRequestEntity));
   }
 
   @PostMapping("/save")

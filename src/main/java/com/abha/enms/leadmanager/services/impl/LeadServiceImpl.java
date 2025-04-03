@@ -15,10 +15,12 @@ import com.abha.enms.utils.ObjectMapperUtil;
 import com.abha.enms.utils.RequestValidator;
 import com.abha.sharedlibrary.enms.enums.ContactType;
 import com.abha.sharedlibrary.enms.request.LeadRequest;
+import com.abha.sharedlibrary.enms.request.LeadSearchFilter;
 import com.abha.sharedlibrary.enms.request.SendNotificationRequest;
 import com.abha.sharedlibrary.enms.response.LeadResponseData;
 import com.abha.sharedlibrary.enms.response.LeadSaveResponse;
 import com.abha.sharedlibrary.shared.common.ExcelFileUtil;
+import com.abha.sharedlibrary.shared.common.request.PaginationRequest;
 import com.abha.sharedlibrary.shared.constants.HeaderConstant;
 import com.abha.sharedlibrary.shared.enums.AddressType;
 import com.abha.sharedlibrary.shared.enums.Status;
@@ -127,12 +129,22 @@ public class LeadServiceImpl implements LeadService {
   }
 
   @Override
-  public LeadResponseData fetchAllLeads(int pageNumber, int pageSize, Map<String, String> headers) {
-    Long subscriberId = Long.parseLong(CommonUtil.getHeaderData(headers, HeaderConstant.SUBSCRIBER_ID));
-    Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Order.desc("id")));
+  public LeadResponseData fetchAllLeads(RequestEntity<LeadSearchFilter> leadSearchFilterRequestEntity) {
+    Long subscriberId = Long.parseLong(CommonUtil.getHeaderData(leadSearchFilterRequestEntity.getHeaders(),
+            HeaderConstant.SUBSCRIBER_ID));
+    LeadSearchFilter leadSearchFilter = leadSearchFilterRequestEntity.getBody();
+    Pageable pageable = getSearchLeadPageable(leadSearchFilter.getPaginationRequest());
     Page<Lead> page = leadDao.getAllLeadsBySubscriberIdAndStatusNot(
         subscriberId, Status.DELETED, pageable);
     return ObjectMapperUtil.mapToLeadResponse(page);
+  }
+
+  private Pageable getSearchLeadPageable(PaginationRequest paginationRequest) {
+    if (StringUtils.isEmpty(paginationRequest.getOrderByColumn())) {
+      return PageRequest.of(paginationRequest.getPageNumber(), paginationRequest.getPageSize(),
+              Sort.by(Sort.Order.desc("id")));
+    }
+
   }
 
   private SendNotificationRequest buildSendNotificationRequest(Map<String, String> headers) {
