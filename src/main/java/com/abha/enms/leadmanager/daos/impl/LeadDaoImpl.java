@@ -3,7 +3,10 @@ package com.abha.enms.leadmanager.daos.impl;
 import com.abha.enms.leadmanager.daos.LeadDao;
 import com.abha.enms.leadmanager.models.Lead;
 import com.abha.enms.leadmanager.repositories.LeadRepository;
+import com.abha.sharedlibrary.shared.enums.Status;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -29,5 +32,11 @@ public class LeadDaoImpl implements LeadDao {
   @Override
   public void saveAllLead(List<Lead> leadList) {
     leadRepository.saveAll(leadList);
+  }
+
+  @Override
+  public Page<Lead> getAllLeadsBySubscriberIdAndStatusNot(
+      Long subscriberId, Status status, Pageable pageable) {
+    return leadRepository.findBySubscriberIdAndStatusNot(subscriberId, status, pageable);
   }
 }

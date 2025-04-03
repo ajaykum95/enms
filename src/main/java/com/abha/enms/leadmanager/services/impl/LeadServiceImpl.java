@@ -16,7 +16,8 @@ import com.abha.enms.utils.RequestValidator;
 import com.abha.sharedlibrary.enms.enums.ContactType;
 import com.abha.sharedlibrary.enms.request.LeadRequest;
 import com.abha.sharedlibrary.enms.request.SendNotificationRequest;
-import com.abha.sharedlibrary.enms.response.LeadResponse;
+import com.abha.sharedlibrary.enms.response.LeadResponseData;
+import com.abha.sharedlibrary.enms.response.LeadSaveResponse;
 import com.abha.sharedlibrary.shared.common.ExcelFileUtil;
 import com.abha.sharedlibrary.shared.constants.HeaderConstant;
 import com.abha.sharedlibrary.shared.enums.AddressType;
@@ -36,6 +37,11 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.RequestEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -51,6 +57,9 @@ public class LeadServiceImpl implements LeadService {
   private final Map<String, Lead> excelLeadMap;
   private final NotificationService notificationService;
 
+  @Value("${pagemap.maxPageSize}")
+  private int maxPageSize;
+
   @Autowired
   public LeadServiceImpl(LeadDao leadDao, NotificationService notificationService) {
     this.leadDao = leadDao;
@@ -61,12 +70,14 @@ public class LeadServiceImpl implements LeadService {
 
   @Transactional
   @Override
-  public LeadResponse saveLeadRequest(RequestEntity<LeadRequest> leadRequestEntity) {
-    String userId = CommonUtil.getUserId(leadRequestEntity);
-    Lead lead = ObjectMapperUtil.mapToSaveLead(leadRequestEntity.getBody(), userId);
+  public LeadSaveResponse saveLeadRequest(RequestEntity<LeadRequest> leadRequestEntity) {
+    String userId = CommonUtil.getHeaderData(leadRequestEntity, HeaderConstant.USER_ID);
+    Long subscriberId = Long.parseLong(CommonUtil.getHeaderData(leadRequestEntity,
+        HeaderConstant.SUBSCRIBER_ID));
+    Lead lead = ObjectMapperUtil.mapToSaveLead(leadRequestEntity.getBody(), userId, subscriberId);
     lead.setDuplicateOf(getDuplicateOfId(lead));
     Lead savedLead = leadDao.saveLead(lead);
-    return LeadResponse.builder()
+    return LeadSaveResponse.builder()
         .leadId(savedLead.getId())
         .success(true)
         .message(AppConstant.SAVE_LEAD_MESSAGE)
@@ -88,7 +99,7 @@ public class LeadServiceImpl implements LeadService {
     List<Lead> leadList = mapToLeads(leadRequestEntity);
     leadDao.saveAllLead(leadList);
   }
-//TODO DUPLICATE LEAD
+
   //  @Async
   @Override
   public void importLeads(Map<String, String> headers, MultipartFile file) {
@@ -113,6 +124,15 @@ public class LeadServiceImpl implements LeadService {
       excelErrorResponse.clear();
       excelLeadMap.clear();
     }
+  }
+
+  @Override
+  public LeadResponseData fetchAllLeads(int pageNumber, int pageSize, Map<String, String> headers) {
+    Long subscriberId = Long.parseLong(CommonUtil.getHeaderData(headers, HeaderConstant.SUBSCRIBER_ID));
+    Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Order.desc("id")));
+    Page<Lead> page = leadDao.getAllLeadsBySubscriberIdAndStatusNot(
+        subscriberId, Status.DELETED, pageable);
+    return ObjectMapperUtil.mapToLeadResponse(page);
   }
 
   private SendNotificationRequest buildSendNotificationRequest(Map<String, String> headers) {
@@ -319,10 +339,12 @@ public class LeadServiceImpl implements LeadService {
   }
 
   private List<Lead> mapToLeads(RequestEntity<List<LeadRequest>> leadRequestEntity) {
-    String userId = CommonUtil.getUserId(leadRequestEntity);
+    String userId = CommonUtil.getHeaderData(leadRequestEntity, HeaderConstant.USER_ID);
+    long subscriberId = Long.parseLong(CommonUtil.getHeaderData(
+        leadRequestEntity, HeaderConstant.SUBSCRIBER_ID));
     return leadRequestEntity.getBody().stream()
         .map(leadRequest -> {
-          Lead lead = ObjectMapperUtil.mapToSaveLead(leadRequest, userId);
+          Lead lead = ObjectMapperUtil.mapToSaveLead(leadRequest, userId, subscriberId);
           lead.setDuplicateOf(getDuplicateOfId(lead));
           return lead;
         }).collect(Collectors.toList());

@@ -4,13 +4,15 @@ import com.abha.enms.leadmanager.services.LeadService;
 import com.abha.enms.utils.AppConstant;
 import com.abha.enms.utils.RequestValidator;
 import com.abha.sharedlibrary.enms.request.LeadRequest;
-import com.abha.sharedlibrary.enms.response.LeadResponse;
+import com.abha.sharedlibrary.enms.response.LeadResponseData;
+import com.abha.sharedlibrary.enms.response.LeadSaveResponse;
 import com.abha.sharedlibrary.shared.common.response.CommonResponse;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,8 +30,15 @@ public class LeadController {
     this.leadService = leadService;
   }
 
+  @GetMapping
+  public ResponseEntity<LeadResponseData> getAllLeads(
+      @RequestHeader Map<String, String> headers, @RequestParam(defaultValue = "0") int pageNumber,
+      @RequestParam(defaultValue = "10") int pageSize) {
+    return ResponseEntity.ok(leadService.fetchAllLeads(pageNumber, pageSize, headers));
+  }
+
   @PostMapping("/save")
-  public ResponseEntity<LeadResponse> saveLead(RequestEntity<LeadRequest> leadRequestEntity) {
+  public ResponseEntity<LeadSaveResponse> saveLead(RequestEntity<LeadRequest> leadRequestEntity) {
     RequestValidator.validateLeadRequest(leadRequestEntity);
     return ResponseEntity.ok(leadService.saveLeadRequest(leadRequestEntity));
   }

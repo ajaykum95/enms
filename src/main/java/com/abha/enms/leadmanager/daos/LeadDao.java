@@ -1,7 +1,10 @@
 package com.abha.enms.leadmanager.daos;
 
 import com.abha.enms.leadmanager.models.Lead;
+import com.abha.sharedlibrary.shared.enums.Status;
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface LeadDao {
   Lead saveLead(Lead lead);
@@ -9,4 +12,7 @@ public interface LeadDao {
   Long fetchDuplicateLeadByContactDetailsIn(List<String> contactValues);
 
   void saveAllLead(List<Lead> leadList);
+
+  Page<Lead> getAllLeadsBySubscriberIdAndStatusNot(
+      Long subscriberId, Status status, Pageable pageable);
 }

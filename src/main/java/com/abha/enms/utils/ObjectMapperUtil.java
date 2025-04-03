@@ -5,18 +5,25 @@ import com.abha.enms.leadmanager.models.ContactDetails;
 import com.abha.enms.leadmanager.models.CustomFields;
 import com.abha.enms.leadmanager.models.Lead;
 import com.abha.enms.leadmanager.models.LeadAddress;
+import com.abha.sharedlibrary.enms.enums.ContactType;
 import com.abha.sharedlibrary.enms.request.ContactRequest;
 import com.abha.sharedlibrary.enms.request.ContactTypeRequest;
 import com.abha.sharedlibrary.enms.request.CustomRequest;
 import com.abha.sharedlibrary.enms.request.LeadRequest;
+import com.abha.sharedlibrary.enms.response.LeadResponse;
+import com.abha.sharedlibrary.enms.response.LeadResponseData;
 import com.abha.sharedlibrary.shared.common.request.AddressRequest;
+import com.abha.sharedlibrary.shared.common.response.PaginationResponse;
 import com.abha.sharedlibrary.shared.enums.Status;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
 import org.springframework.util.CollectionUtils;
 
 public class ObjectMapperUtil {
-  public static Lead mapToSaveLead(LeadRequest leadRequest, String userId) {
+  public static Lead mapToSaveLead(LeadRequest leadRequest, String userId, Long subscriberId) {
     Lead lead = Lead.builder()
         .companyName(leadRequest.getName())
         .url(leadRequest.getUrl())
@@ -24,6 +31,7 @@ public class ObjectMapperUtil {
         .source(leadRequest.getSource())
         .status(Status.ACTIVE)
         .createdBy(userId)
+        .subscriberId(subscriberId)
         .build();
     mapToLeadContacts(lead, leadRequest, userId);
     mapToLeadAddress(lead, leadRequest, userId);
@@ -98,6 +106,7 @@ public class ObjectMapperUtil {
         .status(Status.ACTIVE)
         .createdBy(userId)
         .lead(lead)
+        .isPrimary(contactRequest.isPrimary())
         .build();
     contact.setContactDetails(mapToContactDetails(contact, contactRequest));
     return contact;
@@ -121,5 +130,68 @@ public class ObjectMapperUtil {
         .status(Status.ACTIVE)
         .contact(contact)
         .build();
+  }
+
+  public static LeadResponseData mapToLeadResponse(Page<Lead> page) {
+    if (Objects.isNull(page)) {
+      return LeadResponseData.builder()
+          .leadResponseList(new ArrayList<>())
+          .paginationResponse(PaginationResponse.builder()
+              .pageNumber(0)
+              .pageNumber(0)
+              .totalCount(0)
+              .build())
+          .build();
+    }
+    return LeadResponseData.builder()
+        .leadResponseList(mapToLeadResponse(page.getContent()))
+        .paginationResponse(PaginationResponse.builder()
+            .totalCount(page.getTotalElements())
+            .pageNumber(page.getNumber() + 1)
+            .pageSize(page.getTotalPages())
+            .build())
+        .build();
+  }
+
+  private static List<LeadResponse> mapToLeadResponse(List<Lead> leadList) {
+    if (CollectionUtils.isEmpty(leadList)) {
+      return new ArrayList<>();
+    }
+    return leadList.stream().map(ObjectMapperUtil::mapToLeadResponse)
+        .collect(Collectors.toList());
+  }
+
+  private static LeadResponse mapToLeadResponse(Lead lead) {
+    Contact contact = getPrimaryContact(lead.getContacts());
+    List<ContactDetails> contactDetails = contact.getContactDetails();
+    return LeadResponse.builder()
+        .id(lead.getId())
+        .companyName(lead.getCompanyName())
+        .leadStatus(lead.getLeadStatus())
+        .contactName(contact.getName())
+        .emailAddress(getContactValue(contactDetails, ContactType.EMAIL))
+        .phoneNumber(getContactValue(contactDetails, ContactType.MOBILE))
+        .build();
+  }
+
+  private static String getContactValue(
+      List<ContactDetails> contactDetails, ContactType contactType) {
+    if (CollectionUtils.isEmpty(contactDetails)) {
+      return null;
+    }
+    return contactDetails.stream()
+        .filter(cd -> contactType.equals(cd.getContactType()))
+        .map(ContactDetails::getValue)
+        .findFirst().orElse(null);
+  }
+
+  private static Contact getPrimaryContact(List<Contact> contacts) {
+    if (CollectionUtils.isEmpty(contacts)) {
+      return new Contact();
+    }
+    return contacts.stream()
+        .filter(Contact::isPrimary)
+        .findFirst()
+        .orElse(contacts.get(0));
   }
 }

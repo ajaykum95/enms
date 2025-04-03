@@ -4,6 +4,7 @@ import com.abha.enms.shared.models.BaseEntity;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -31,6 +32,7 @@ public class Contact extends BaseEntity {
   @ManyToOne(targetEntity = Lead.class)
   @JoinColumn(name = "lead_id", referencedColumnName = "id", nullable = false)
   private Lead lead;
-  @OneToMany(mappedBy = "contact", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+  @OneToMany(mappedBy = "contact", cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+      fetch = FetchType.EAGER)
   private List<ContactDetails> contactDetails;
 }

@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
@@ -35,7 +36,8 @@ public class Lead extends BaseEntity {
   private String leadStatus;
   @Column(nullable = false)
   private Long subscriberId;
-  @OneToMany(mappedBy = "lead", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+  @OneToMany(mappedBy = "lead", cascade = {CascadeType.MERGE, CascadeType.PERSIST},
+      fetch = FetchType.EAGER)
   private List<Contact> contacts;
   @OneToMany(mappedBy = "lead", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   private List<LeadAddress> leadAddresses;

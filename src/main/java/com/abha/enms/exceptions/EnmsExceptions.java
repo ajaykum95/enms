@@ -48,7 +48,9 @@ public enum EnmsExceptions implements BusinessExceptionDefintion {
   MAX_DEFAULT_CONTACT_EXCEED(5011, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
       "Only one contact can be set as primary!"),
   MIN_DEFAULT_CONTACT_REQUIRED(5012, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
-      "At least one contact must be set as primary!");
+      "At least one contact must be set as primary!"),
+  HEADER_DATA_NOT_FOUND(5013, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
+      "%s not present in headers!");
 
   private final int businessErrorCode;
   private final ErrorCategory errorCategory;

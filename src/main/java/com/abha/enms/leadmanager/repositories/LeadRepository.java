@@ -1,8 +1,11 @@
 package com.abha.enms.leadmanager.repositories;
 
 import com.abha.enms.leadmanager.models.Lead;
+import com.abha.sharedlibrary.shared.enums.Status;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +22,6 @@ public interface LeadRepository extends JpaRepository<Lead, Long> {
       nativeQuery = true)
   Optional<Long> fetchDuplicateLeadByContactDetailsIn(
       @Param("contactValues") List<String> contactValues);
+
+  Page<Lead> findBySubscriberIdAndStatusNot(Long subscriberId, Status status, Pageable pageable);
 }
