@@ -1,5 +1,6 @@
 package com.abha.enms.leadmanager.controllers;
 
+import com.abha.enms.leadmanager.models.LeadImportHistory;
 import com.abha.enms.leadmanager.services.LeadService;
 import com.abha.enms.utils.AppConstant;
 import com.abha.enms.utils.RequestValidator;
@@ -58,5 +59,11 @@ public class LeadController {
     RequestValidator.validateImportLeads(file);
     leadService.importLeads(headers, file);
     return ResponseEntity.ok(new CommonResponse(true, AppConstant.IMPORT_LEADS_PROGRESS));
+  }
+
+  @GetMapping("/import/history")
+  public ResponseEntity<List<LeadImportHistory>> fetchLeadImportHistory(
+          @RequestHeader Map<String, String> headers) {
+    return ResponseEntity.ok(leadService.fetchAllImportHistory(headers));
   }
 }

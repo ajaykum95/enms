@@ -2,12 +2,14 @@ package com.abha.enms.leadmanager.services.impl;
 
 import com.abha.enms.integration.noms.NotificationService;
 import com.abha.enms.leadmanager.daos.LeadDao;
+import com.abha.enms.leadmanager.daos.LeadImportDao;
 import com.abha.enms.leadmanager.dtos.ExcelLeadDto;
 import com.abha.enms.leadmanager.models.Contact;
 import com.abha.enms.leadmanager.models.ContactDetails;
 import com.abha.enms.leadmanager.models.CustomFields;
 import com.abha.enms.leadmanager.models.Lead;
 import com.abha.enms.leadmanager.models.LeadAddress;
+import com.abha.enms.leadmanager.models.LeadImportHistory;
 import com.abha.enms.leadmanager.services.LeadService;
 import com.abha.enms.utils.AppConstant;
 import com.abha.enms.utils.CommonUtil;
@@ -59,15 +61,17 @@ public class LeadServiceImpl implements LeadService {
   private final Map<String, String>  excelErrorResponse;
   private final Map<String, Lead> excelLeadMap;
   private final NotificationService notificationService;
+  private final LeadImportDao leadImportDao;
 
   @Value("${pagemap.maxPageSize}")
   private int maxPageSize;
 
   @Autowired
-  public LeadServiceImpl(LeadDao leadDao, NotificationService notificationService) {
+  public LeadServiceImpl(LeadDao leadDao, NotificationService notificationService, LeadImportDao leadImportDao) {
     this.leadDao = leadDao;
     this.notificationService = notificationService;
-    this.excelErrorResponse = new HashMap<>();
+      this.leadImportDao = leadImportDao;
+      this.excelErrorResponse = new HashMap<>();
     this.excelLeadMap = new HashMap<>();
   }
 
@@ -103,9 +107,11 @@ public class LeadServiceImpl implements LeadService {
     leadDao.saveAllLead(leadList);
   }
 
-  //  @Async
+  @Async
   @Override
   public void importLeads(Map<String, String> headers, MultipartFile file) {
+    String createdBy = CommonUtil.getHeaderData(headers, HeaderConstant.USER_ID);
+    Long subscriberId = Long.parseLong(CommonUtil.getHeaderData(headers, HeaderConstant.SUBSCRIBER_ID));
     try {
       List<ExcelLeadDto> excelLeadDtos = ExcelFileUtil.readExcel(
           file.getInputStream(), ExcelLeadDto.class);
@@ -114,19 +120,24 @@ public class LeadServiceImpl implements LeadService {
         excelErrorResponse.put("0", "No Data Found");
         return;
       }
-      String createdBy = headers.get(HeaderConstant.USER_ID);
-      Long subscriberId = Long.parseLong(headers.get(HeaderConstant.SUBSCRIBER_ID));
       for (ExcelLeadDto excelLeadDto : excelLeadDtos) {
         mapLeadExcelObject(excelLeadDto, createdBy, subscriberId);
       }
-      processExcelLeadData();
+      processExcelLeadData(file.getOriginalFilename(), createdBy, subscriberId);
     } catch (Exception e) {
       log.error("Error processing the file: {}", e.getMessage(), e);
+      saveLeadImportHistory(file.getOriginalFilename(), createdBy, subscriberId);
     } finally {
       notificationService.sendNotification(buildSendNotificationRequest(headers));
       excelErrorResponse.clear();
       excelLeadMap.clear();
     }
+  }
+
+  private void saveLeadImportHistory(String originalFilename, String createdBy, Long subscriberId) {
+    LeadImportHistory leadImportHistory = ObjectMapperUtil.mapToFailLeadImportHHistory(
+            originalFilename, createdBy, subscriberId);
+    leadImportDao.saveLeadImport(leadImportHistory);
   }
 
   @Override
@@ -140,6 +151,12 @@ public class LeadServiceImpl implements LeadService {
     return ObjectMapperUtil.mapToLeadResponse(page);
   }
 
+  @Override
+  public List<LeadImportHistory> fetchAllImportHistory(Map<String, String> headers) {
+    long subscriberId = Long.parseLong(CommonUtil.getHeaderData(headers, HeaderConstant.SUBSCRIBER_ID));
+    return leadImportDao.getAllLeadImportHistory(subscriberId);
+  }
+
   private Pageable getSearchLeadPageable(LeadSearchFilter leadSearchFilter) {
     PaginationRequest paginationRequest = Optional.ofNullable(leadSearchFilter.getPaginationRequest())
         .orElse(new PaginationRequest(0, 10, "id", SortOrder.DESC));
@@ -148,7 +165,9 @@ public class LeadServiceImpl implements LeadService {
         ? Sort.by(Sort.Order.asc(paginationRequest.getOrderByColumn()))
         : Sort.by(Sort.Order.desc(paginationRequest.getOrderByColumn()));
 
-    return PageRequest.of(paginationRequest.getPageNumber(), paginationRequest.getPageSize(), sort);
+    return PageRequest.of(paginationRequest.getPageNumber(),
+            maxPageSize < paginationRequest.getPageSize()
+                    ? maxPageSize : paginationRequest.getPageSize(), sort);
   }
 
   private SendNotificationRequest buildSendNotificationRequest(Map<String, String> headers) {
@@ -156,7 +175,8 @@ public class LeadServiceImpl implements LeadService {
   }
 
   @Transactional
-  private void processExcelLeadData() {
+  private void processExcelLeadData(
+          String fileName, String createdBy, Long subscriberId) {
     if (MapUtils.isEmpty(excelLeadMap)) {
       return;
     }
@@ -175,6 +195,11 @@ public class LeadServiceImpl implements LeadService {
     }
     if (!CollectionUtils.isEmpty(leadList)) {
       leadDao.saveAllLead(leadList);
+    }
+    LeadImportHistory leadImportHistory = ObjectMapperUtil.mapToLeadImportHistory(
+            leadList, fileName, createdBy, excelErrorResponse, subscriberId);
+    if (Objects.nonNull(leadImportHistory)) {
+      leadImportDao.saveLeadImport(leadImportHistory);
     }
   }
 
