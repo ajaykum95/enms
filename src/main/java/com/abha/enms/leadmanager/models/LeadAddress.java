@@ -28,7 +28,7 @@ public class LeadAddress extends BaseEntity {
   @Column(nullable = false)
   private AddressType addressType;
 
-  private boolean isDefault;
+  private boolean isPrimary;
 
   @Column(nullable = false, columnDefinition = "TEXT")
   private String addressLine1;

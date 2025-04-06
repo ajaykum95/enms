@@ -46,3 +46,6 @@ webclient:
     keepAlive: true # Enables or disables TCP keep-alive. If set to true, it enables TCP keep-alive, which sends periodic messages to check if the connection is still active.
     reuseAddress: true # Enables or disables address reuse. If set to true, it enables address reuse, allowing multiple sockets to bind to the same local address.
     maxInMemorySize: 31457280 # is byte count (30MB), Sets the maximum size of the in-memory buffer for response content. This parameter influences how much content can be buffered in memory during the processing of a response. If the content exceeds this size, it may trigger buffering to disk or other strategies.
+
+pagemap:
+  maxPageSize: 100

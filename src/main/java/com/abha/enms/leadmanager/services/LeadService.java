@@ -1,13 +1,23 @@
 package com.abha.enms.leadmanager.services;
 
+import com.abha.enms.leadmanager.models.LeadImportHistory;
 import com.abha.sharedlibrary.enms.request.LeadRequest;
-import com.abha.sharedlibrary.enms.response.LeadResponse;
-import com.abha.sharedlibrary.shared.common.response.CommonResponse;
+import com.abha.sharedlibrary.enms.request.LeadSearchFilter;
+import com.abha.sharedlibrary.enms.response.LeadResponseData;
+import com.abha.sharedlibrary.enms.response.LeadSaveResponse;
 import java.util.List;
+import java.util.Map;
 import org.springframework.http.RequestEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface LeadService {
-  LeadResponse saveWebhookLeadRequest(RequestEntity<LeadRequest> webhookLeadRequestEntity);
+  LeadSaveResponse saveLeadRequest(RequestEntity<LeadRequest> leadRequestEntity);
 
-  CommonResponse saveWebhookLeadsRequest(RequestEntity<List<LeadRequest>> webhookLeadRequestEntity);
+  void saveLeadsRequest(RequestEntity<List<LeadRequest>> leadRequestEntity);
+
+  void importLeads(Map<String, String> headers, MultipartFile file);
+
+  LeadResponseData fetchAllLeads(RequestEntity<LeadSearchFilter> leadSearchFilterRequestEntity);
+
+  List<LeadImportHistory> fetchAllImportHistory(Map<String, String> headers);
 }
