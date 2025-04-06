@@ -38,7 +38,7 @@ public class RequestValidator {
     if (StringUtils.isEmpty(leadRequest.getSource())) {
       throw buildException(EnmsExceptions.REQUEST_SOURCE_MISSING);
     }
-    if (StringUtils.isEmpty(leadRequest.getSource())) {
+    if (StringUtils.isEmpty(leadRequest.getName())) {
       throw buildException(EnmsExceptions.LEAD_NAME_MISSING);
     }
     if (CollectionUtils.isEmpty(leadRequest.getContacts())) {
@@ -229,6 +229,9 @@ public class RequestValidator {
     LeadSearchFilter leadSearchFilter = leadSearchFilterRequestEntity.getBody();
     PaginationRequest paginationRequest = leadSearchFilter.getPaginationRequest();
     if (Objects.nonNull(paginationRequest)) {
+      if (paginationRequest.getPageNumber() <=0 ) {
+        throw buildException(EnmsExceptions.INVALID_PAGE_NUMBER);
+      }
       if (paginationRequest.getPageSize() == 0) {
         throw buildException(EnmsExceptions.PAGE_SIZE_INVALID);
       }

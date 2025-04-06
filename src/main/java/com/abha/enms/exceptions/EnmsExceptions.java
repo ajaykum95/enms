@@ -58,7 +58,9 @@ public enum EnmsExceptions implements BusinessExceptionDefintion {
   ORDER_BY_COLUMN_MISSING(5016, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
       "Order by column is missing!"),
   SORT_ORDER_MISSING(5017, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
-      "Sort order is missing!");
+      "Sort order is missing!"),
+  INVALID_PAGE_NUMBER(5018, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
+          "Invalid page number!");
 
   private final int businessErrorCode;
   private final ErrorCategory errorCategory;

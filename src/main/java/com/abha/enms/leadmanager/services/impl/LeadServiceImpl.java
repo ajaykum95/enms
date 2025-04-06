@@ -165,7 +165,7 @@ public class LeadServiceImpl implements LeadService {
         ? Sort.by(Sort.Order.asc(paginationRequest.getOrderByColumn()))
         : Sort.by(Sort.Order.desc(paginationRequest.getOrderByColumn()));
 
-    return PageRequest.of(paginationRequest.getPageNumber(),
+    return PageRequest.of(paginationRequest.getPageNumber() -1,
             maxPageSize < paginationRequest.getPageSize()
                     ? maxPageSize : paginationRequest.getPageSize(), sort);
   }
