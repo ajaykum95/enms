@@ -35,6 +35,7 @@ public class ObjectMapperUtil {
                 .companyDesc(leadRequest.getDescription())
                 .source(leadRequest.getSource())
                 .status(Status.ACTIVE)
+                .leadStatus(leadRequest.getLeadStatus())
                 .createdBy(userId)
                 .subscriberId(subscriberId)
                 .build();
