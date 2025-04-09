@@ -6,6 +6,7 @@ import com.abha.enms.utils.AppConstant;
 import com.abha.enms.utils.RequestValidator;
 import com.abha.sharedlibrary.enms.request.LeadRequest;
 import com.abha.sharedlibrary.enms.request.LeadSearchFilter;
+import com.abha.sharedlibrary.enms.request.LeadStatusRequest;
 import com.abha.sharedlibrary.enms.response.LeadResponseData;
 import com.abha.sharedlibrary.enms.response.LeadSaveResponse;
 import com.abha.sharedlibrary.shared.common.response.CommonResponse;
@@ -42,6 +43,12 @@ public class LeadController {
   @PostMapping("/save")
   public ResponseEntity<LeadSaveResponse> saveLead(RequestEntity<LeadRequest> leadRequestEntity) {
     RequestValidator.validateLeadRequest(leadRequestEntity);
+    return ResponseEntity.ok(leadService.saveLeadRequest(leadRequestEntity));
+  }
+
+  @PostMapping("/updateStatus")
+  public ResponseEntity<CommonResponse> updateLeadStatus(RequestEntity<LeadStatusRequest> leadStatusRequestEntity) {
+    RequestValidator.validateLeadStatusRequest(leadRequestEntity);
     return ResponseEntity.ok(leadService.saveLeadRequest(leadRequestEntity));
   }
 

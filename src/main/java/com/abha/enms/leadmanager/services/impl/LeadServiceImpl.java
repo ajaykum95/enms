@@ -144,8 +144,7 @@ public class LeadServiceImpl implements LeadService {
   public LeadResponseData fetchAllLeads(RequestEntity<LeadSearchFilter> leadSearchFilterRequestEntity) {
     Long subscriberId = Long.parseLong(CommonUtil.getHeaderData(leadSearchFilterRequestEntity.getHeaders(),
             HeaderConstant.SUBSCRIBER_ID));
-    LeadSearchFilter leadSearchFilter = leadSearchFilterRequestEntity.getBody();
-    Pageable pageable = getSearchLeadPageable(leadSearchFilter);
+    Pageable pageable = getSearchLeadPageable(leadSearchFilterRequestEntity);
     Page<Lead> page = leadDao.getAllLeadsBySubscriberIdAndStatusNot(
         subscriberId, Status.DELETED, pageable);
     return ObjectMapperUtil.mapToLeadResponse(page);
@@ -157,9 +156,11 @@ public class LeadServiceImpl implements LeadService {
     return leadImportDao.getAllLeadImportHistory(subscriberId);
   }
 
-  private Pageable getSearchLeadPageable(LeadSearchFilter leadSearchFilter) {
-    PaginationRequest paginationRequest = Optional.ofNullable(leadSearchFilter.getPaginationRequest())
-        .orElse(new PaginationRequest(0, 10, "id", SortOrder.DESC));
+  private Pageable getSearchLeadPageable(RequestEntity<LeadSearchFilter> leadSearchFilterRequestEntity) {
+    PaginationRequest paginationRequest = Optional.ofNullable(leadSearchFilterRequestEntity)
+            .map(RequestEntity::getBody)
+            .map(LeadSearchFilter::getPaginationRequest)
+            .orElse(new PaginationRequest(1, 10, "id", SortOrder.DESC));
 
     Sort sort = (SortOrder.ASC.equals(paginationRequest.getSortOrder()))
         ? Sort.by(Sort.Order.asc(paginationRequest.getOrderByColumn()))

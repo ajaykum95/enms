@@ -224,7 +224,7 @@ public class RequestValidator {
           RequestEntity<LeadSearchFilter> leadSearchFilterRequestEntity) {
     if (Objects.isNull(leadSearchFilterRequestEntity)
         || Objects.isNull(leadSearchFilterRequestEntity.getBody())) {
-      throw buildException(EnmsExceptions.LEAD_SEARCH_FILTER_EXCEPTION);
+      return;
     }
     LeadSearchFilter leadSearchFilter = leadSearchFilterRequestEntity.getBody();
     PaginationRequest paginationRequest = leadSearchFilter.getPaginationRequest();
