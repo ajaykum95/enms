@@ -3,8 +3,10 @@ package com.abha.enms.leadmanager.services;
 import com.abha.enms.leadmanager.models.LeadImportHistory;
 import com.abha.sharedlibrary.enms.request.LeadRequest;
 import com.abha.sharedlibrary.enms.request.LeadSearchFilter;
+import com.abha.sharedlibrary.enms.request.LeadStatusRequest;
 import com.abha.sharedlibrary.enms.response.LeadResponseData;
 import com.abha.sharedlibrary.enms.response.LeadSaveResponse;
+import com.abha.sharedlibrary.shared.common.response.CommonResponse;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.RequestEntity;
@@ -20,4 +22,6 @@ public interface LeadService {
   LeadResponseData fetchAllLeads(RequestEntity<LeadSearchFilter> leadSearchFilterRequestEntity);
 
   List<LeadImportHistory> fetchAllImportHistory(Map<String, String> headers);
+
+  CommonResponse updateLeadStatus(RequestEntity<LeadStatusRequest> leadStatusRequestEntity);
 }

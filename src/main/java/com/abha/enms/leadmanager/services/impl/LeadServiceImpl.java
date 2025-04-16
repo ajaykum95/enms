@@ -1,5 +1,6 @@
 package com.abha.enms.leadmanager.services.impl;
 
+import com.abha.enms.exceptions.EnmsExceptions;
 import com.abha.enms.integration.noms.NotificationService;
 import com.abha.enms.leadmanager.daos.LeadDao;
 import com.abha.enms.leadmanager.daos.LeadImportDao;
@@ -18,11 +19,13 @@ import com.abha.enms.utils.RequestValidator;
 import com.abha.sharedlibrary.enms.enums.ContactType;
 import com.abha.sharedlibrary.enms.request.LeadRequest;
 import com.abha.sharedlibrary.enms.request.LeadSearchFilter;
-import com.abha.sharedlibrary.enms.request.SendNotificationRequest;
+import com.abha.sharedlibrary.enms.request.LeadStatusRequest;
 import com.abha.sharedlibrary.enms.response.LeadResponseData;
 import com.abha.sharedlibrary.enms.response.LeadSaveResponse;
+import com.abha.sharedlibrary.noms.request.SendNotificationRequest;
 import com.abha.sharedlibrary.shared.common.ExcelFileUtil;
 import com.abha.sharedlibrary.shared.common.request.PaginationRequest;
+import com.abha.sharedlibrary.shared.common.response.CommonResponse;
 import com.abha.sharedlibrary.shared.constants.HeaderConstant;
 import com.abha.sharedlibrary.shared.enums.AddressType;
 import com.abha.sharedlibrary.shared.enums.SortOrder;
@@ -53,6 +56,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import static com.abha.sharedlibrary.shared.common.ExceptionUtil.buildException;
+
 @Slf4j
 @Service
 public class LeadServiceImpl implements LeadService {
@@ -81,6 +86,7 @@ public class LeadServiceImpl implements LeadService {
     String userId = CommonUtil.getHeaderData(leadRequestEntity, HeaderConstant.USER_ID);
     Long subscriberId = Long.parseLong(CommonUtil.getHeaderData(leadRequestEntity,
         HeaderConstant.SUBSCRIBER_ID));
+    //TODO VALIDATE LEAD STATUS
     Lead lead = ObjectMapperUtil.mapToSaveLead(leadRequestEntity.getBody(), userId, subscriberId);
     lead.setDuplicateOf(getDuplicateOfId(lead));
     Lead savedLead = leadDao.saveLead(lead);
@@ -144,8 +150,7 @@ public class LeadServiceImpl implements LeadService {
   public LeadResponseData fetchAllLeads(RequestEntity<LeadSearchFilter> leadSearchFilterRequestEntity) {
     Long subscriberId = Long.parseLong(CommonUtil.getHeaderData(leadSearchFilterRequestEntity.getHeaders(),
             HeaderConstant.SUBSCRIBER_ID));
-    LeadSearchFilter leadSearchFilter = leadSearchFilterRequestEntity.getBody();
-    Pageable pageable = getSearchLeadPageable(leadSearchFilter);
+    Pageable pageable = getSearchLeadPageable(leadSearchFilterRequestEntity);
     Page<Lead> page = leadDao.getAllLeadsBySubscriberIdAndStatusNot(
         subscriberId, Status.DELETED, pageable);
     return ObjectMapperUtil.mapToLeadResponse(page);
@@ -157,9 +162,30 @@ public class LeadServiceImpl implements LeadService {
     return leadImportDao.getAllLeadImportHistory(subscriberId);
   }
 
-  private Pageable getSearchLeadPageable(LeadSearchFilter leadSearchFilter) {
-    PaginationRequest paginationRequest = Optional.ofNullable(leadSearchFilter.getPaginationRequest())
-        .orElse(new PaginationRequest(0, 10, "id", SortOrder.DESC));
+  @Override
+  public CommonResponse updateLeadStatus(RequestEntity<LeadStatusRequest> leadStatusRequestEntity) {
+    String userId = CommonUtil.getHeaderData(leadStatusRequestEntity, HeaderConstant.USER_ID);
+    Long subscriberId = Long.parseLong(
+            CommonUtil.getHeaderData(leadStatusRequestEntity, HeaderConstant.SUBSCRIBER_ID));
+    LeadStatusRequest leadStatusRequest = leadStatusRequestEntity.getBody();
+    Lead lead = fetchLeadById(leadStatusRequest.getId(), subscriberId);
+    //TODO VALIDATE VALID STATUS
+    lead.setLeadStatus(leadStatusRequest.getLeadStatus());
+    lead.setUpdatedBy(userId);
+    leadDao.saveLead(lead);
+    return new CommonResponse(true, AppConstant.LEAD_STATUS_UPDATED);
+  }
+
+  private Lead fetchLeadById(Long id, Long subscriberId) {
+    return leadDao.findByIdAndSubscriberIdAndStatusNot(id, subscriberId, Status.DELETED)
+            .orElseThrow(() -> buildException(EnmsExceptions.LEAD_NOT_FOUND));
+  }
+
+  private Pageable getSearchLeadPageable(RequestEntity<LeadSearchFilter> leadSearchFilterRequestEntity) {
+    PaginationRequest paginationRequest = Optional.ofNullable(leadSearchFilterRequestEntity)
+            .map(RequestEntity::getBody)
+            .map(LeadSearchFilter::getPaginationRequest)
+            .orElse(new PaginationRequest(1, 10, "id", SortOrder.DESC));
 
     Sort sort = (SortOrder.ASC.equals(paginationRequest.getSortOrder()))
         ? Sort.by(Sort.Order.asc(paginationRequest.getOrderByColumn()))
@@ -383,6 +409,7 @@ public class LeadServiceImpl implements LeadService {
     String userId = CommonUtil.getHeaderData(leadRequestEntity, HeaderConstant.USER_ID);
     long subscriberId = Long.parseLong(CommonUtil.getHeaderData(
         leadRequestEntity, HeaderConstant.SUBSCRIBER_ID));
+    //TODO VALIDATE LEAD STATUSES
     return leadRequestEntity.getBody().stream()
         .map(leadRequest -> {
           Lead lead = ObjectMapperUtil.mapToSaveLead(leadRequest, userId, subscriberId);
