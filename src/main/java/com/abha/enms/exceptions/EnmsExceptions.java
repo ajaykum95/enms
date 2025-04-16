@@ -60,7 +60,11 @@ public enum EnmsExceptions implements BusinessExceptionDefintion {
   SORT_ORDER_MISSING(5017, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
       "Sort order is missing!"),
   INVALID_PAGE_NUMBER(5018, ErrorCategory.ERROR, ExceptionTypes.VALIDATION_ERROR,
-          "Invalid page number!");
+          "Invalid page number!"),
+  LEAD_STATUS_REQUEST_MISSING(5019, ErrorCategory.ERROR, ExceptionTypes.BAD_REQUEST_ERROR,
+          "Lead status request missing!"),
+  LEAD_NOT_FOUND(5020, ErrorCategory.ERROR, ExceptionTypes.BAD_REQUEST_ERROR,
+          "Lead not found!");
 
   private final int businessErrorCode;
   private final ErrorCategory errorCategory;

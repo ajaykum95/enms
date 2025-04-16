@@ -1,6 +1,6 @@
 package com.abha.enms.integration.noms;
 
-import com.abha.sharedlibrary.enms.request.SendNotificationRequest;
+import com.abha.sharedlibrary.noms.request.SendNotificationRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

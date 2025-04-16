@@ -26,21 +26,30 @@ import lombok.experimental.SuperBuilder;
 public class Lead extends BaseEntity {
   @Column(nullable = false)
   private String companyName;
+
   private String url;
   @Column(columnDefinition = "TEXT")
+
   private String companyDesc;
   @Column(nullable = false)
+
   private String source;
+
   private Long duplicateOf;
+
   @Column(nullable = false)
   private String leadStatus;
+
   @Column(nullable = false)
   private Long subscriberId;
+
   @OneToMany(mappedBy = "lead", cascade = {CascadeType.MERGE, CascadeType.PERSIST},
       fetch = FetchType.EAGER)
   private List<Contact> contacts;
+
   @OneToMany(mappedBy = "lead", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   private List<LeadAddress> leadAddresses;
+
   @OneToMany(mappedBy = "lead", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
   private List<CustomFields> customFields;
 }

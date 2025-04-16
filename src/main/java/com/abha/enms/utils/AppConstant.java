@@ -8,4 +8,5 @@ public class AppConstant {
   public static final String IMPORT_LEADS_PROGRESS = "Importing leads is in progress!";
   public static final String TRUE = "TRUE";
   public static final String YES = "Yes";
+  public static final String LEAD_STATUS_UPDATED = "Lead status updated successfully!";
 }
